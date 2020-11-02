@@ -1,5 +1,21 @@
 {
   "projects": {
-    "default": "chat-nuxt-76297"
+    "production": "chat-nuxt-76297"
+  },
+  "targets": {
+    "message-board-d24c1": {
+      "hosting": {
+        "production-client": [
+          "chat-nuxt-1"
+        ]
+      }
+    },
+    "chat-nuxt-76297": {
+      "hosting": {
+        "production-client": [
+          "chat-nuxt-1"
+        ]
+      }
+    }
   }
 }

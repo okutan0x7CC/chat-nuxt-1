@@ -1,0 +1,1 @@
+firebase deploy --project=production --only hosting:production-client
