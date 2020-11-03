@@ -1,5 +1,9 @@
 # Created by .ignore support plugin (hsz.mobi)
 
+# Environment variables
+.env.*
+!.env.example
+
 # Firebase
 .firebase
 
