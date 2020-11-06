@@ -11,6 +11,7 @@ const errorMessages = {
 export const state = () => ({
   postList: [],
   idList: [],
+  hiddenPostIds: [],
   anyMorePosts: false
 })
 
@@ -25,6 +26,9 @@ export const mutations = {
   },
   setAnyMorePosts (state, { anyMore }) {
     state.anyMorePosts = anyMore
+  },
+  addHiddenPostId (state, { postId }) {
+    state.hiddenPostIds.push(postId)
   }
 }
 
@@ -43,12 +47,22 @@ export const getters = {
   },
   anyMorePosts (state) {
     return state.anyMorePosts
+  },
+  hiddenPostsRef (state, getters, rootState, rootGetters) {
+    return window.$nuxt.$fire.database.ref(`hidden_posts/${rootGetters['client_user/client_user/roomId']}`)
+  },
+  hiddenPostIds (state) {
+    return state.hiddenPostIds
   }
 }
 
 export const actions = {
   listen ({ getters, commit }) {
     commit('setAnyMorePosts', { anyMore: false })
+    getters.hiddenPostsRef
+      .on('child_added', (snapshot) => {
+        commit('addHiddenPostId', { postId: snapshot.key })
+      })
     getters.postsRef
       .orderByKey()
       .limitToLast(LIMIT_OF_POSTS_TO_GET_AT_ONCE)
