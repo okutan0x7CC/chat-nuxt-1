@@ -1,45 +1,54 @@
 
-const LIMIT_OF_POSTS_TO_GET_AT_ONCE = 30
+const LIMIT_OF_POSTS_TO_GET_AT_ONCE = 31
 const MAX_LENGTH_OF_MESSAGE = 120
 
 const errorMessages = {
   POST_MESSAGE_OVER: `Please limit your message to ${MAX_LENGTH_OF_MESSAGE} characters.`,
-  NEED_LOGIN: 'Login is required.'
+  NEED_LOGIN: 'Login is required.',
+  POST_MESSAGE_EMPTY: "can't send with empty message"
 }
 
 export const state = () => ({
-  post_list: [],
-  id_list: []
+  postList: [],
+  idList: [],
+  anyMorePosts: false
 })
 
 export const mutations = {
   addPostAtFirst (state, { postId, post }) {
-    state.id_list.unshift(postId)
-    state.post_list.unshift(post)
+    state.idList.unshift(postId)
+    state.postList.unshift(post)
   },
   addPostsAtLast (state, { postIds, posts }) {
-    state.id_list.push(...postIds)
-    state.post_list.push(...posts)
+    state.idList.push(...postIds)
+    state.postList.push(...posts)
+  },
+  setAnyMorePosts (state, { anyMore }) {
+    state.anyMorePosts = anyMore
   }
 }
 
 export const getters = {
   posts (state) {
-    return state.post_list
+    return state.postList
   },
   postIds (state) {
-    return state.id_list
+    return state.idList
   },
   postsRef (state, getters, rootState, rootGetters) {
     return window.$nuxt.$fire.database.ref(`posts/${rootGetters['client_user/client_user/roomId']}`)
   },
   postIdOfLast (state) {
-    return state.id_list[state.id_list.length - 1]
+    return state.idList[state.idList.length - 1]
+  },
+  anyMorePosts (state) {
+    return state.anyMorePosts
   }
 }
 
 export const actions = {
   listen ({ getters, commit }) {
+    commit('setAnyMorePosts', { anyMore: false })
     getters.postsRef
       .orderByKey()
       .limitToLast(LIMIT_OF_POSTS_TO_GET_AT_ONCE)
@@ -47,18 +56,21 @@ export const actions = {
         commit('addPostAtFirst', { postId: snapshot.key, post: snapshot.val() })
       })
   },
-  detach ({ getters }) {
+  detach ({ getters, commit }) {
     getters.postsRef.off()
   },
   send ({ getters, rootGetters }, { messageText }) {
-    if (messageText.length > MAX_LENGTH_OF_MESSAGE) {
-      throw errorMessages.POST_MESSAGE_OVER
-    }
-
     const clientUserId = rootGetters['client_user/client_user/userId']
     const clientUserNickname = rootGetters['client_user/client_user/nickname']
     if (clientUserId === null || clientUserNickname === null) {
       throw errorMessages.NEED_LOGIN
+    }
+
+    if (messageText.length === 0) {
+      throw errorMessages.POST_MESSAGE_EMPTY
+    }
+    if (messageText.length > MAX_LENGTH_OF_MESSAGE) {
+      throw errorMessages.POST_MESSAGE_OVER
     }
 
     getters.postsRef.push(
@@ -70,19 +82,27 @@ export const actions = {
       }
     )
   },
-  loadMore ({ getters }) {
+  loadMore ({ getters, commit }) {
     getters.postsRef
       .orderByKey()
       .endAt(getters.postIdOfLast)
-      .limitToLast(LIMIT_OF_POSTS_TO_GET_AT_ONCE + 1)
+      .limitToLast(LIMIT_OF_POSTS_TO_GET_AT_ONCE)
       .once('value', (snapshot) => {
+        const numOfPosts = snapshot.numChildren()
+        if (numOfPosts < LIMIT_OF_POSTS_TO_GET_AT_ONCE) {
+          commit('setAnyMorePosts', { anyMore: true })
+        }
+        if (numOfPosts === 0) {
+          return
+        }
+
         const postIdsOrderedByKeyDesc = []
         const postsOrderedByKeyDesc = []
         snapshot.forEach((childSnapshot) => {
           postIdsOrderedByKeyDesc.unshift(childSnapshot.key)
           postsOrderedByKeyDesc.unshift(childSnapshot.val())
         })
-        postIdsOrderedByKeyDesc.shift() // remove endAt Post
+        postIdsOrderedByKeyDesc.shift() // remove duplicate post at end
         postsOrderedByKeyDesc.shift()
 
         window.$nuxt.$store.commit('posts/posts/addPostsAtLast', {
