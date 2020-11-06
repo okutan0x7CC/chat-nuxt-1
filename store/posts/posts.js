@@ -36,7 +36,6 @@ export const getters = {
   postIdOfLast (state) {
     return state.id_list[state.id_list.length - 1]
   }
-
 }
 
 export const actions = {
