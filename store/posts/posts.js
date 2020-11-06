@@ -1,5 +1,5 @@
 
-const LIMIT_OF_POSTS_TO_GET_AT_ONCE = 31
+const LIMIT_OF_POSTS_TO_GET_AT_ONCE = 30
 const MAX_LENGTH_OF_MESSAGE = 120
 
 const errorMessages = {
@@ -86,10 +86,10 @@ export const actions = {
     getters.postsRef
       .orderByKey()
       .endAt(getters.postIdOfLast)
-      .limitToLast(LIMIT_OF_POSTS_TO_GET_AT_ONCE)
+      .limitToLast(LIMIT_OF_POSTS_TO_GET_AT_ONCE + 1)
       .once('value', (snapshot) => {
         const numOfPosts = snapshot.numChildren()
-        if (numOfPosts < LIMIT_OF_POSTS_TO_GET_AT_ONCE) {
+        if (numOfPosts < LIMIT_OF_POSTS_TO_GET_AT_ONCE + 1) {
           commit('setAnyMorePosts', { anyMore: true })
         }
         if (numOfPosts === 0) {
