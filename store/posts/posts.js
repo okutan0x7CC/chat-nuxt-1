@@ -70,8 +70,9 @@ export const actions = {
         commit('addPostAtFirst', { postId: snapshot.key, post: snapshot.val() })
       })
   },
-  detach ({ getters, commit }) {
+  detach ({ getters }) {
     getters.postsRef.off()
+    getters.hiddenPostsRef.off()
   },
   send ({ getters, rootGetters }, { messageText }) {
     const clientUserId = rootGetters['client_user/client_user/userId']
