@@ -1,13 +1,16 @@
 <template>
   <div>
-    <ul v-for="post in posts" :key="post.id">
-      <li>id: {{ post.id }}</li>
-      <li>messageText: {{ post.messageText }}</li>
-      <li>userId: {{ post.userId }}</li>
-      <li>nickname: {{ post.nickname }}</li>
-      <li>timestamp: {{ post.timestamp }}</li>
-      <hr>
-    </ul>
+    <transition-group name="list">
+      <ul v-for="post in posts" :key="post.id">
+        <li>id: {{ post.id }}</li>
+        <li>messageText: {{ post.messageText }}</li>
+        <li>userId: {{ post.userId }}</li>
+        <li>nickname: {{ post.nickname }}</li>
+        <li>timestamp: {{ post.timestamp }}</li>
+        <hr>
+      </ul>
+    </transition-group>
+
     <div>
       <button @click="loadMore()">
         load_more
@@ -55,6 +58,11 @@ export default {
 }
 </script>
 
-<style>
-
-</style>
+<style lang="scss" scoped>
+.list-enter-active {
+  transition: all 0.3s ease-out;
+}
+.list-enter {
+  transform: translateY(-100%);
+}
+</style>>
