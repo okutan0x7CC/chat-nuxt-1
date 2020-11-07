@@ -6,6 +6,7 @@
         <Nuxt />
       </v-container>
     </v-main>
+    <TheBottomBar />
   </v-app>
 </template>
 

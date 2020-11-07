@@ -12,9 +12,6 @@
       <button @click="loadMore()">
         load_more
       </button>
-      <button @click="sendPost()">
-        send_post
-      </button>
     </div>
   </div>
 </template>
@@ -48,13 +45,6 @@ export default {
   methods: {
     loadMore () {
       this.$store.dispatch('posts/posts/loadMore')
-    },
-    sendPost () {
-      try {
-        this.$store.dispatch('posts/posts/send', 'test_message')
-      } catch (errorMessage) {
-        alert(errorMessage)
-      }
     },
     isEnabledAutoScroll () {
       const scrolledHeightFromTop = window.document.body.scrollTop || window.document.documentElement.scrollTop
