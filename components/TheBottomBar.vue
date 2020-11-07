@@ -15,6 +15,7 @@
       rows="1"
       :append-outer-icon="'mdi-send'"
       clearable
+      hide-details
       @click:append-outer="sendPost"
       @click:clear="clearMessageText"
     />
@@ -53,5 +54,4 @@ export default {
 </script>
 
 <style>
-
 </style>

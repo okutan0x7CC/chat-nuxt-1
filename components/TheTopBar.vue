@@ -1,10 +1,8 @@
 <template>
   <v-app-bar
-    dense
-    flat
     app
   >
-    <v-toolbar-title>
+    <v-toolbar-title class="text-center mx-auto">
       {{ room !== null ? room.title : "" }}
     </v-toolbar-title>
   </v-app-bar>
