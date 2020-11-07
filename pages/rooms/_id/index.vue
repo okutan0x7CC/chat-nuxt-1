@@ -2,7 +2,7 @@
   <div>
     <ul v-for="post in posts" :key="post.id">
       <li>id: {{ post.id }}</li>
-      <li>message: {{ post.message }}</li>
+      <li>messageText: {{ post.messageText }}</li>
       <li>userId: {{ post.userId }}</li>
       <li>nickname: {{ post.nickname }}</li>
       <li>timestamp: {{ post.timestamp }}</li>
@@ -41,8 +41,8 @@ export default {
     this.$store.dispatch('posts/posts/listen')
   },
   beforeDestroy () {
-    this.$store.dispatch('rooms/rooms/resetState')
-    this.$store.dispatch('posts/posts/resetState')
+    this.$store.commit('room/room/resetState')
+    this.$store.commit('posts/posts/resetState')
     this.$store.dispatch('posts/posts/detach')
   },
   methods: {
@@ -51,7 +51,7 @@ export default {
     },
     sendPost () {
       try {
-        this.$store.dispatch('posts/posts/send', { messageText: 'test_message_1' })
+        this.$store.dispatch('posts/posts/send', 'test_message')
       } catch (errorMessage) {
         alert(errorMessage)
       }

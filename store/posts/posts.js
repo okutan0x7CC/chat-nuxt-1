@@ -98,7 +98,7 @@ export const actions = {
         const value = snapshot.val()
         commit('addPostAtFirst', new Post({
           id: snapshot.key,
-          message: value.message,
+          messageText: value.messageText,
           userId: value.userId,
           nickname: value.nickname,
           timestamp: value.timestamp
@@ -109,9 +109,9 @@ export const actions = {
     getters.postsRef.off()
     getters.hiddenPostsRef.off()
   },
-  send ({ getters, rootGetters }, message) {
+  send ({ getters, rootGetters }, messageText) {
     const newPost = new Post({
-      message_text: message,
+      messageText,
       userId: rootGetters['client_user/client_user/userId'],
       nickname: rootGetters['client_user/client_user/nickname']
     })
@@ -119,8 +119,8 @@ export const actions = {
     newPost.validateForSend()
 
     getters.postsRef.push({
-      user_id: newPost.userId,
-      message_text: newPost.messageText,
+      userId: newPost.userId,
+      messageText: newPost.messageText,
       timestamp: window.$nuxt.$fireModule.database.ServerValue.TIMESTAMP,
       nickname: newPost.nickname
     })
@@ -144,7 +144,7 @@ export const actions = {
           const value = childSnapshot.val()
           postsOrderedByKeyDesc.unshift(new Post({
             id: childSnapshot.key,
-            message: value.message,
+            messageText: value.messageText,
             userId: value.userId,
             nickname: value.nickname,
             timestamp: value.timestamp
