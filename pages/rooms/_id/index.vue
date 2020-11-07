@@ -13,6 +13,7 @@
         load_more
       </button>
     </div>
+    <TheBottomBar />
   </div>
 </template>
 

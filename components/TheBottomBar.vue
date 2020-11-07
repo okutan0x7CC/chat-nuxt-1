@@ -1,28 +1,24 @@
 <template>
-  <v-container>
+  <v-app-bar
+    app
+    bottom
+    height="auto"
+  >
     <v-textarea
       v-model="messageText"
       outlined
       label="message"
+      type="text"
       value=""
-      placeholder="message"
+      placeholder="hello world"
       auto-grow
       rows="1"
+      :append-outer-icon="'mdi-send'"
+      clearable
+      @click:append-outer="sendPost"
+      @click:clear="clearMessageText"
     />
-    <v-btn
-      color="blue-grey"
-      class="ma-2 white--text"
-      @click="sendPost"
-    >
-      Send
-      <v-icon
-        right
-        dark
-      >
-        mdi-send
-      </v-icon>
-    </v-btn>
-  </v-container>
+  </v-app-bar>
 </template>
 
 <script>
@@ -32,9 +28,14 @@ export default {
   data: () => ({
     messageText: ''
   }),
-  computed: mapGetters({
-    room: 'room/room/room'
-  }),
+  computed: {
+    appBarHeight () {
+      return this.rowHeight
+    },
+    ...mapGetters({
+      room: 'room/room/room'
+    })
+  },
   methods: {
     sendPost () {
       try {
@@ -42,7 +43,10 @@ export default {
       } catch (errorMessage) {
         alert(errorMessage)
       }
-      this.messageText = ''
+      this.clearMessageText()
+    },
+    clearMessageText () {
+      this.messageText = null
     }
   }
 }

@@ -16,7 +16,7 @@ const Post = class {
     if (this.userId === null || this.nickname === null) {
       throw Post.errorMessages.NEED_LOGIN
     }
-    if (this.messageText.length === 0) {
+    if (this.messageText === null || this.messageText.length === 0) {
       throw Post.errorMessages.POST_MESSAGE_EMPTY
     }
     if (this.messageText.length > Post.MAX_LENGTH_OF_MESSAGE_TEXT) {
