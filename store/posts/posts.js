@@ -29,6 +29,16 @@ export const mutations = {
   },
   addHiddenPostId (state, { postId }) {
     state.hiddenPostIds.push(postId)
+  },
+  resetState (state) {
+    state.postList = []
+    state.idList = []
+    state.hiddenPostIds = []
+    state.anyMorePosts = false
+  },
+  dropLastPosts (state, { remainCount }) {
+    state.idList.splice(remainCount)
+    state.postList.splice(remainCount)
   }
 }
 
@@ -57,8 +67,8 @@ export const getters = {
 }
 
 export const actions = {
-  listen ({ getters, commit }) {
-    commit('setAnyMorePosts', { anyMore: false })
+  listen ({ state, getters, commit }) {
+    commit('resetState')
     getters.hiddenPostsRef
       .on('child_added', (snapshot) => {
         commit('addHiddenPostId', { postId: snapshot.key })
@@ -67,10 +77,14 @@ export const actions = {
       .orderByKey()
       .limitToLast(LIMIT_OF_POSTS_TO_GET_AT_ONCE)
       .on('child_added', (snapshot) => {
-        commit('addPostAtFirst', { postId: snapshot.key, post: snapshot.val() })
+        commit('addPostAtFirst', {
+          postId: snapshot.key,
+          post: snapshot.val()
+        })
       })
   },
-  detach ({ getters }) {
+  detach ({ getters, commit }) {
+    commit('resetState')
     getters.postsRef.off()
     getters.hiddenPostsRef.off()
   },

@@ -5,12 +5,16 @@ export const state = () => ({
 })
 
 export const mutations = {
-  login (state, userId, user) {
+  setUser (state, userId, user) {
     state.userId = userId
     state.nickname = user.nickname
   },
-  enterRoom (state, roomId) {
+  setEnteringRoomId (state, roomId) {
     state.enteringRoomId = roomId
+  },
+  resetUser (state) {
+    state.userId = null
+    state.nickname = null
   }
 }
 
@@ -23,5 +27,13 @@ export const getters = {
   },
   roomId (state) {
     return state.enteringRoomId
+  }
+}
+
+export const actions = {
+  enterRoom ({ commit, dispatch }, roomId) {
+    commit('setEnteringRoomId', roomId)
+    commit('room/room/resetState', null, { root: true })
+    dispatch('room/room/fetch', roomId, { root: true })
   }
 }
