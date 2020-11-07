@@ -52,7 +52,7 @@ export default {
     posts: 'posts/posts/posts'
   }),
   watch: {
-    posts (before, after) {
+    posts (after, before) {
       if (this.isEnabledAutoScroll() && after.length > MAX_NUM_OF_POSTS_TO_HOLD) {
         this.$store.commit('posts/posts/dropLastPosts', { remainCount: MAX_NUM_OF_POSTS_TO_HOLD })
       }

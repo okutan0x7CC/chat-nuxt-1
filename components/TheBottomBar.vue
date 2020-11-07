@@ -6,8 +6,6 @@
   >
     <v-textarea
       v-model="messageText"
-      outlined
-      label="message"
       type="text"
       value=""
       placeholder="hello world"
@@ -16,6 +14,8 @@
       :append-outer-icon="'mdi-send'"
       clearable
       hide-details
+      min-height="46px"
+      :maxlength="120"
       @click:append-outer="sendPost"
       @click:clear="clearMessageText"
     />
@@ -53,5 +53,6 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+
 </style>
