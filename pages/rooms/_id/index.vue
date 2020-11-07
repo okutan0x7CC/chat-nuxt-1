@@ -1,14 +1,30 @@
 <template>
   <div>
     <transition-group name="list">
-      <ul v-for="post in posts" :key="post.id">
-        <li>id: {{ post.id }}</li>
-        <li>messageText: {{ post.messageText }}</li>
-        <li>userId: {{ post.userId }}</li>
-        <li>nickname: {{ post.nickname }}</li>
-        <li>timestamp: {{ post.timestamp }}</li>
-        <hr>
-      </ul>
+      <v-card
+        v-for="post in posts"
+        :key="post.id"
+        class="mx-auto mb-3"
+        max-width="400"
+        dark
+      >
+        <v-card-text class="headline font-weight-bold">
+          {{ post.messageText }}
+        </v-card-text>
+        <v-card-actions>
+          <v-list-item class="grow">
+            <v-list-item-content>
+              <v-list-item-title>{{ post.nickname }}</v-list-item-title>
+            </v-list-item-content>
+            <div
+              justify="end"
+              class="caption"
+            >
+              {{ post.timestamp | formatDate }}
+            </div>
+          </v-list-item>
+        </v-card-actions>
+      </v-card>
     </transition-group>
 
     <div>
@@ -22,10 +38,16 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import moment from 'moment-timezone'
 
 const MAX_NUM_OF_POSTS_TO_HOLD = 120
 
 export default {
+  filters: {
+    formatDate (timestamp) {
+      return moment(timestamp, 'x').tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss')
+    }
+  },
   computed: mapGetters({
     posts: 'posts/posts/posts'
   }),
