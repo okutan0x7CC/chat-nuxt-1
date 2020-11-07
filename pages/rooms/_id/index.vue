@@ -1,10 +1,11 @@
 <template>
   <div>
-    <ul v-for="(postId, index) in postIds" :key="postId">
-      <li>post_id : {{ postId }}</li>
-      <li v-for="(value, name) in posts[index]" :key="name">
-        {{ name }} : {{ value }}
-      </li>
+    <ul v-for="post in posts" :key="post.id">
+      <li>id: {{ post.id }}</li>
+      <li>message: {{ post.message }}</li>
+      <li>userId: {{ post.userId }}</li>
+      <li>nickname: {{ post.nickname }}</li>
+      <li>timestamp: {{ post.timestamp }}</li>
       <hr>
     </ul>
     <div>
@@ -25,11 +26,10 @@ const MAX_NUM_OF_POSTS_TO_HOLD = 120
 
 export default {
   computed: mapGetters({
-    posts: 'posts/posts/posts',
-    postIds: 'posts/posts/postIds'
+    posts: 'posts/posts/posts'
   }),
   watch: {
-    postIds (before, after) {
+    posts (before, after) {
       if (this.isEnabledAutoScroll() && after.length > MAX_NUM_OF_POSTS_TO_HOLD) {
         this.$store.commit('posts/posts/dropLastPosts', { remainCount: MAX_NUM_OF_POSTS_TO_HOLD })
       }
@@ -38,11 +38,11 @@ export default {
   created () {
     const roomId = this.$route.params.id
     this.$store.dispatch('client_user/client_user/enterRoom', roomId)
-
-    this.$store.commit('posts/posts/resetState')
     this.$store.dispatch('posts/posts/listen')
   },
   beforeDestroy () {
+    this.$store.dispatch('rooms/rooms/resetState')
+    this.$store.dispatch('posts/posts/resetState')
     this.$store.dispatch('posts/posts/detach')
   },
   methods: {

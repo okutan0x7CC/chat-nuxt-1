@@ -1,59 +1,77 @@
 
 const LIMIT_OF_POSTS_TO_GET_AT_ONCE = 30
-const MAX_LENGTH_OF_MESSAGE = 120
 
-const errorMessages = {
-  POST_MESSAGE_OVER: `Please limit your message to ${MAX_LENGTH_OF_MESSAGE} characters.`,
-  NEED_LOGIN: 'Login is required.',
-  POST_MESSAGE_EMPTY: "can't send with empty message"
+const Post = class {
+  constructor ({ id, messageText, userId, nickname, timestamp }) {
+    this.id = id
+    this.messageText = messageText
+    this.userId = userId
+    this.nickname = nickname
+    this.timestamp = timestamp
+  }
+
+  static MAX_LENGTH_OF_MESSAGE_TEXT = 120
+
+  validateForSend () {
+    if (this.userId === null || this.nickname === null) {
+      throw Post.errorMessages.NEED_LOGIN
+    }
+    if (this.messageText.length === 0) {
+      throw Post.errorMessages.POST_MESSAGE_EMPTY
+    }
+    if (this.messageText.length > Post.MAX_LENGTH_OF_MESSAGE_TEXT) {
+      throw this.errorMessageOfPostMessageOver()
+    }
+  }
+
+  static errorMessages = {
+    NEED_LOGIN: 'Login is required.',
+    POST_MESSAGE_EMPTY: "can't send with empty message"
+  }
+
+  errorMessageOfPostMessageOver () {
+    return `Please limit your message to ${Post.MAX_LENGTH_OF_MESSAGE_TEXT} characters.`
+  }
 }
 
 export const state = () => ({
-  postList: [],
-  idList: [],
+  posts: [],
   hiddenPostIds: [],
   anyMorePosts: false
 })
 
 export const mutations = {
-  addPostAtFirst (state, { postId, post }) {
-    state.idList.unshift(postId)
-    state.postList.unshift(post)
+  addPostAtFirst (state, post) {
+    state.posts.unshift(post)
   },
-  addPostsAtLast (state, { postIds, posts }) {
-    state.idList.push(...postIds)
-    state.postList.push(...posts)
+  addPostsAtLast (state, posts) {
+    state.posts.push(...posts)
   },
-  setAnyMorePosts (state, { anyMore }) {
+  setAnyMorePosts (state, anyMore) {
     state.anyMorePosts = anyMore
   },
   addHiddenPostId (state, { postId }) {
     state.hiddenPostIds.push(postId)
   },
   resetState (state) {
-    state.postList = []
-    state.idList = []
+    state.posts = []
     state.hiddenPostIds = []
     state.anyMorePosts = false
   },
   dropLastPosts (state, { remainCount }) {
-    state.idList.splice(remainCount)
-    state.postList.splice(remainCount)
+    state.posts.splice(remainCount)
   }
 }
 
 export const getters = {
   posts (state) {
-    return state.postList
-  },
-  postIds (state) {
-    return state.idList
+    return state.posts
   },
   postsRef (state, getters, rootState, rootGetters) {
     return window.$nuxt.$fire.database.ref(`posts/${rootGetters['client_user/client_user/roomId']}`)
   },
   postIdOfLast (state) {
-    return state.idList[state.idList.length - 1]
+    return state.posts[state.posts.length - 1].id
   },
   anyMorePosts (state) {
     return state.anyMorePosts
@@ -77,39 +95,35 @@ export const actions = {
       .orderByKey()
       .limitToLast(LIMIT_OF_POSTS_TO_GET_AT_ONCE)
       .on('child_added', (snapshot) => {
-        commit('addPostAtFirst', {
-          postId: snapshot.key,
-          post: snapshot.val()
-        })
+        const value = snapshot.val()
+        commit('addPostAtFirst', new Post({
+          id: snapshot.key,
+          message: value.message,
+          userId: value.userId,
+          nickname: value.nickname,
+          timestamp: value.timestamp
+        }))
       })
   },
-  detach ({ getters, commit }) {
-    commit('resetState')
+  detach ({ getters }) {
     getters.postsRef.off()
     getters.hiddenPostsRef.off()
   },
-  send ({ getters, rootGetters }, { messageText }) {
-    const clientUserId = rootGetters['client_user/client_user/userId']
-    const clientUserNickname = rootGetters['client_user/client_user/nickname']
-    if (clientUserId === null || clientUserNickname === null) {
-      throw errorMessages.NEED_LOGIN
-    }
+  send ({ getters, rootGetters }, message) {
+    const newPost = new Post({
+      message_text: message,
+      userId: rootGetters['client_user/client_user/userId'],
+      nickname: rootGetters['client_user/client_user/nickname']
+    })
 
-    if (messageText.length === 0) {
-      throw errorMessages.POST_MESSAGE_EMPTY
-    }
-    if (messageText.length > MAX_LENGTH_OF_MESSAGE) {
-      throw errorMessages.POST_MESSAGE_OVER
-    }
+    newPost.validateForSend()
 
-    getters.postsRef.push(
-      {
-        user_id: clientUserId,
-        message_text: messageText,
-        timestamp: window.$nuxt.$fireModule.database.ServerValue.TIMESTAMP,
-        nickname: clientUserNickname
-      }
-    )
+    getters.postsRef.push({
+      user_id: newPost.userId,
+      message_text: newPost.messageText,
+      timestamp: window.$nuxt.$fireModule.database.ServerValue.TIMESTAMP,
+      nickname: newPost.nickname
+    })
   },
   loadMore ({ getters, commit }) {
     getters.postsRef
@@ -119,25 +133,26 @@ export const actions = {
       .once('value', (snapshot) => {
         const numOfPosts = snapshot.numChildren()
         if (numOfPosts < LIMIT_OF_POSTS_TO_GET_AT_ONCE + 1) {
-          commit('setAnyMorePosts', { anyMore: true })
+          commit('setAnyMorePosts', true)
         }
         if (numOfPosts === 0) {
           return
         }
 
-        const postIdsOrderedByKeyDesc = []
         const postsOrderedByKeyDesc = []
         snapshot.forEach((childSnapshot) => {
-          postIdsOrderedByKeyDesc.unshift(childSnapshot.key)
-          postsOrderedByKeyDesc.unshift(childSnapshot.val())
+          const value = childSnapshot.val()
+          postsOrderedByKeyDesc.unshift(new Post({
+            id: childSnapshot.key,
+            message: value.message,
+            userId: value.userId,
+            nickname: value.nickname,
+            timestamp: value.timestamp
+          }))
         })
-        postIdsOrderedByKeyDesc.shift() // remove duplicate post at end
-        postsOrderedByKeyDesc.shift()
+        postsOrderedByKeyDesc.shift() // remove duplicate post at end
 
-        window.$nuxt.$store.commit('posts/posts/addPostsAtLast', {
-          postIds: postIdsOrderedByKeyDesc,
-          posts: postsOrderedByKeyDesc
-        })
+        window.$nuxt.$store.commit('posts/posts/addPostsAtLast', postsOrderedByKeyDesc)
       })
   }
 }
