@@ -84,7 +84,8 @@ export default {
           }
         },
         services: {
-          database: true
+          database: true,
+          auth: true
         }
       }
     ]

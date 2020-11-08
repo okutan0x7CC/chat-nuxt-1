@@ -10,5 +10,9 @@
 </template>
 
 <script>
-
+export default {
+  created () {
+    this.$store.dispatch('client_user/client_user/signInAnonymous')
+  }
+}
 </script>

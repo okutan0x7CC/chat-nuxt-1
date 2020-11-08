@@ -1,29 +1,24 @@
 export const state = () => ({
-  userId: 'test_id_1',
-  nickname: 'test_nickanme_1',
+  userId: null,
   enteringRoomId: null
 })
 
 export const mutations = {
-  setUser (state, userId, user) {
+  setUser (state, userId) {
     state.userId = userId
-    state.nickname = user.nickname
   },
   setEnteringRoomId (state, roomId) {
     state.enteringRoomId = roomId
   },
   resetUser (state) {
     state.userId = null
-    state.nickname = null
+    state.enteringRoomId = null
   }
 }
 
 export const getters = {
   userId (state) {
     return state.userId
-  },
-  nickname (state) {
-    return state.nickname
   },
   roomId (state) {
     return state.enteringRoomId
@@ -35,5 +30,11 @@ export const actions = {
     commit('setEnteringRoomId', roomId)
     commit('room/room/resetState', null, { root: true })
     dispatch('room/room/fetch', roomId, { root: true })
+  },
+  signInAnonymous ({ state, commit }) {
+    window.$nuxt.$fire.auth.signInAnonymously()
+      .then((userCredential) => {
+        commit('setUser', userCredential.user.uid)
+      })
   }
 }

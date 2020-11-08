@@ -1,27 +1,23 @@
 <template>
-  <v-card
-    v-if="canShow"
-    class="mx-auto mb-3"
-    max-width="400"
-    dark
-  >
-    <v-card-text class="headline font-weight-bold">
-      {{ post.messageText }}
-    </v-card-text>
-    <v-card-actions>
-      <v-list-item class="grow">
-        <v-list-item-content>
-          <v-list-item-title>{{ post.nickname }}</v-list-item-title>
-        </v-list-item-content>
+  <div>
+    <v-card
+      v-if="canShow"
+      class="mx-auto mb-3"
+      max-width="400"
+      dark
+    >
+      <v-list-item>
         <div
-          justify="end"
-          class="caption"
+          class="overline"
         >
           {{ post.timestamp | formatDate }}
         </div>
       </v-list-item>
-    </v-card-actions>
-  </v-card>
+      <v-card-text class="headline font-weight-bold">
+        {{ post.messageText }}
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 
 <script>

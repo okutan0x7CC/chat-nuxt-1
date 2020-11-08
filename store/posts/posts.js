@@ -2,18 +2,17 @@
 const LIMIT_OF_POSTS_TO_GET_AT_ONCE = 30
 
 const Post = class {
-  constructor ({ id, messageText, userId, nickname, timestamp }) {
+  constructor ({ id, messageText, userId, timestamp }) {
     this.id = id
     this.messageText = messageText
     this.userId = userId
-    this.nickname = nickname
     this.timestamp = timestamp
   }
 
   static MAX_LENGTH_OF_MESSAGE_TEXT = 120
 
   validateForSend () {
-    if (this.userId === null || this.nickname === null) {
+    if (this.userId === null) {
       throw Post.errorMessages.NEED_LOGIN
     }
     if (this.messageText === null || this.messageText.length === 0) {
@@ -103,7 +102,6 @@ export const actions = {
           id: snapshot.key,
           messageText: value.messageText,
           userId: value.userId,
-          nickname: value.nickname,
           timestamp: value.timestamp
         }))
       })
@@ -115,8 +113,7 @@ export const actions = {
   send ({ getters, rootGetters }, messageText) {
     const newPost = new Post({
       messageText,
-      userId: rootGetters['client_user/client_user/userId'],
-      nickname: rootGetters['client_user/client_user/nickname']
+      userId: rootGetters['client_user/client_user/userId']
     })
 
     newPost.validateForSend()
@@ -124,8 +121,7 @@ export const actions = {
     getters.postsRef.push({
       userId: newPost.userId,
       messageText: newPost.messageText,
-      timestamp: window.$nuxt.$fireModule.database.ServerValue.TIMESTAMP,
-      nickname: newPost.nickname
+      timestamp: window.$nuxt.$fireModule.database.ServerValue.TIMESTAMP
     })
   },
   loadMore ({ getters, commit }) {
@@ -149,7 +145,6 @@ export const actions = {
             id: childSnapshot.key,
             messageText: value.messageText,
             userId: value.userId,
-            nickname: value.nickname,
             timestamp: value.timestamp
           }))
         })
