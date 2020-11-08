@@ -14,8 +14,8 @@
       :append-outer-icon="'mdi-send'"
       clearable
       hide-details
-      min-height="46px"
       :maxlength="120"
+      class="py-2"
       @click:append-outer="sendPost"
       @click:clear="clearMessageText"
     />
@@ -53,6 +53,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-
+<style>
+.v-text-field > .v-input__control > .v-input__slot:before {
+  border-style: none !important;
+}
 </style>
