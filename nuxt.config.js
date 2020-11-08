@@ -33,6 +33,7 @@ export default {
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
+    '~/plugins/vue-observe-visibility.js'
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -87,6 +88,7 @@ export default {
         }
       }
     ]
+
   ],
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)

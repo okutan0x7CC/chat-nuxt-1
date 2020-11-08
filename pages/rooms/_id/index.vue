@@ -26,12 +26,15 @@
         </v-card-actions>
       </v-card>
     </transition-group>
-
-    <div>
-      <button @click="loadMore()">
-        load_more
-      </button>
-    </div>
+    <div
+      v-observe-visibility="{
+        callback: loadMorePosts,
+        throttleOptions: {
+          leading: 'visible'
+        }
+      }"
+      class="py-10"
+    />
     <TheBottomBar />
   </div>
 </template>
@@ -69,12 +72,15 @@ export default {
     this.$store.dispatch('posts/posts/detach')
   },
   methods: {
-    loadMore () {
-      this.$store.dispatch('posts/posts/loadMore')
-    },
     isEnabledAutoScroll () {
       const scrolledHeightFromTop = window.document.body.scrollTop || window.document.documentElement.scrollTop
       return scrolledHeightFromTop < 10
+    },
+    loadMorePosts (visiable) {
+      if (!visiable || this.posts.length === 0) {
+        return
+      }
+      this.$store.dispatch('posts/posts/loadMore')
     }
   }
 }
