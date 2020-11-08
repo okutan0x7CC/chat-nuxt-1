@@ -14,7 +14,7 @@
           leading: 'visible'
         }
       }"
-      class="py-10"
+      class="py-8"
     />
     <TheBottomBar />
   </div>

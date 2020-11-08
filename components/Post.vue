@@ -1,5 +1,6 @@
 <template>
   <v-card
+    v-if="canShow"
     class="mx-auto mb-3"
     max-width="400"
     dark
@@ -37,6 +38,14 @@ export default {
     post: {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    canShow () {
+      if (this.$store.getters['client_user/client_user/userId'] === this.post.userId) {
+        return true
+      }
+      return !this.$store.getters['posts/posts/isHidden'](this.post.id)
     }
   }
 }

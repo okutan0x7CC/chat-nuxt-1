@@ -50,8 +50,8 @@ export const mutations = {
   setAnyMorePosts (state, anyMore) {
     state.anyMorePosts = anyMore
   },
-  addHiddenPostId (state, { postId }) {
-    state.hiddenPostIds.push(postId)
+  overwriteHiddenPostIds (state, postIds) {
+    state.hiddenPostIds = postIds
   },
   resetState (state) {
     state.posts = []
@@ -77,19 +77,22 @@ export const getters = {
     return state.anyMorePosts
   },
   hiddenPostsRef (state, getters, rootState, rootGetters) {
-    return window.$nuxt.$fire.database.ref(`hidden_posts/${rootGetters['client_user/client_user/roomId']}`)
+    return window.$nuxt.$fire.database.ref(`hiddenPosts/${rootGetters['client_user/client_user/roomId']}`)
   },
-  hiddenPostIds (state) {
-    return state.hiddenPostIds
+  isHidden (state) {
+    return (postId) => {
+      return state.hiddenPostIds.includes(postId)
+    }
   }
 }
 
 export const actions = {
-  listen ({ state, getters, commit }) {
+  listen ({ getters, commit }) {
     commit('resetState')
     getters.hiddenPostsRef
-      .on('child_added', (snapshot) => {
-        commit('addHiddenPostId', { postId: snapshot.key })
+      .on('value', (snapshot) => {
+        const hiddenPostIds = Object.keys(snapshot.val() || {})
+        commit('overwriteHiddenPostIds', hiddenPostIds)
       })
     getters.postsRef
       .orderByKey()
